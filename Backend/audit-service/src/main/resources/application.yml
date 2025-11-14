@@ -13,7 +13,7 @@ spring:
   datasource:
     url: ${AUDIT_DB_URL:jdbc:postgresql://localhost:5433/audit_db}
     username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:admin}
+    password: ${POSTGRES_PASSWORD:admin123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: ${DB_POOL_SIZE:10}
@@ -43,7 +43,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: auditEvent:com.university.audit.dto.AuditEvent
+        spring.json.type.mapping: auditEvent:com.university.auditservice.dto.AuditEvent
 
 # EUREKA CLIENT
 eureka:
@@ -77,6 +77,6 @@ management:
 logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
-    com.university.audit: ${LOGGING_LEVEL_APP:DEBUG}
+    com.university.auditservice: ${LOGGING_LEVEL_APP:DEBUG}
     org.springframework.kafka: ${LOGGING_LEVEL_KAFKA:INFO}
     org.apache.kafka: WARN
