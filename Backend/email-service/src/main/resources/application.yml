@@ -1,0 +1,79 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: email-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  # CONFIGURACIÓN DE RABBITMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3000
+          max-attempts: 3
+          max-interval: 10000
+          multiplier: 2.0
+        acknowledge-mode: auto
+        prefetch: 1
+
+# EUREKA CLIENT
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# RABBITMQ QUEUES
+rabbitmq:
+  queue:
+    email: email.queue
+
+# EMAIL CONFIGURATION (Simulado)
+email:
+  enabled: true
+  simulation-mode: true
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# LOGGING
+logging:
+  level:
+    com.university.email: DEBUG
+    org.springframework.amqp: INFO
+
+---
+# PERFIL DOCKER
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  rabbitmq:
+    host: rabbitmq
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

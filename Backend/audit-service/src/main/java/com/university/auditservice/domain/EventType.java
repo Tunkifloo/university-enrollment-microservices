@@ -1,0 +1,17 @@
+package com.university.auditservice.domain;
+
+public enum EventType {
+    USER_REGISTERED,
+    USER_LOGIN,
+    USER_LOGOUT,
+    FACULTY_CREATED,
+    FACULTY_UPDATED,
+    FACULTY_DELETED,
+    CAREER_CREATED,
+    CAREER_UPDATED,
+    CAREER_DELETED,
+    ENROLLMENT_CREATED,
+    ENROLLMENT_UPDATED,
+    ENROLLMENT_DELETED,
+    OTHER
+}

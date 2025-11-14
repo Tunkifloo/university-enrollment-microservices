@@ -1,0 +1,94 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: audit-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  # CONFIGURACIÓN DE BASE DE DATOS
+  datasource:
+    url: jdbc:postgresql://localhost:5434/audit_db
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # CONFIGURACIÓN DE KAFKA
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: audit-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: auditEvent:com.university.audit.dto.AuditEvent
+
+# EUREKA CLIENT
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# KAFKA TOPICS
+kafka:
+  topics:
+    audit: audit.events
+    user-registered: user.registered
+    faculty-created: faculty.created
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# LOGGING
+logging:
+  level:
+    com.university.audit: DEBUG
+    org.springframework.kafka: INFO
+    org.apache.kafka: WARN
+
+---
+# PERFIL DOCKER
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres-audit:5432/audit_db
+
+  kafka:
+    bootstrap-servers: kafka:29092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

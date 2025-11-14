@@ -1,0 +1,83 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # RUTA PARA AUTH SERVICE (sin autenticación)
+        - id: auth-service-register
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/register
+          filters:
+            - StripPrefix=1
+
+        - id: auth-service-login
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/login
+          filters:
+            - StripPrefix=1
+
+        # RUTA PARA MATRICULAS SERVICE (con auth)
+        - id: matriculas-service
+          uri: lb://matriculas-service
+          predicates:
+            - Path=/api/v1/**
+          filters:
+            - AuthenticationFilter
+
+        # ACTUATOR (sin autenticación)
+        - id: eureka-actuator
+          uri: lb://eureka-server
+          predicates:
+            - Path=/eureka/actuator/**
+
+# EUREKA CLIENT
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# JWT CONFIGURATION
+jwt:
+  secret: mi-clave-secreta-super-segura-de-256-bits-para-produccion-cambiar-esto
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+# LOGGING
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.university.gateway: DEBUG
+
+---
+# PERFIL DOCKER
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

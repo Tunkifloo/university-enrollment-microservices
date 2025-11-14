@@ -21,7 +21,7 @@ services:
       - app-network
 
   backend:
-    build: ./Backend/API-matriculas
+    build: Backend/matriculas-service
     container_name: matriculas-backend
     restart: unless-stopped
     env_file: .env

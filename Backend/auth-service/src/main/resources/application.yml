@@ -1,0 +1,115 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: auth-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  # CONFIGURACIÓN DE BASE DE DATOS
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  # CONFIGURACIÓN DE RABBITMQ
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 3000
+          max-attempts: 3
+
+  # CONFIGURACIÓN DE KAFKA
+  spring:
+    kafka:
+      bootstrap-servers: localhost:9092
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  kafka:
+    topics:
+      audit: audit.events
+      user-registered: user.registered
+
+# EUREKA CLIENT
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+
+# JWT CONFIGURATION
+jwt:
+  secret: mi-clave-secreta-super-segura-de-256-bits-para-produccion-cambiar-esto
+  expiration: 86400000  # 24 horas en milisegundos
+
+# RABBITMQ QUEUES
+rabbitmq:
+  queue:
+    email: email.queue
+  exchange:
+    email: email.exchange
+  routing-key:
+    email: email.routing.key
+
+# ACTUATOR
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# LOGGING
+logging:
+  level:
+    com.university.auth: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.amqp: DEBUG
+
+---
+# PERFIL DOCKER
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres-auth:5432/auth_db
+
+  rabbitmq:
+    host: rabbitmq
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/

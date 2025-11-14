@@ -957,7 +957,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -965,7 +965,7 @@ services:
       - app-network
 
   backend:
-    build: ./Backend/API-matriculas
+    build: Backend/matriculas-service
     container_name: matriculas-backend
     restart: unless-stopped
     env_file: .env
