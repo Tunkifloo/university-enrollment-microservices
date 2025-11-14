@@ -1,20 +1,30 @@
 FROM maven:3.9.5-eclipse-temurin-17 AS build
+
 WORKDIR /build
 
-# 1. Copiar e instalar POM padre
-COPY pom.xml ./pom.xml
-RUN mvn install:install-file -Dfile=pom.xml -DpomFile=pom.xml -DgroupId=com.university -DartifactId=sistema-matriculas-parent -Dversion=1.0.0 -Dpackaging=pom
+# Crear POM padre SIN módulos
+COPY pom.xml ./pom-original.xml
+RUN sed '/<modules>/,/<\/modules>/d' pom-original.xml > pom.xml
 
-# 2. Construir common-lib
+# Instalar POM padre
+RUN mvn install:install-file \
+    -Dfile=pom.xml \
+    -DpomFile=pom.xml \
+    -DgroupId=com.university \
+    -DartifactId=sistema-matriculas-parent \
+    -Dversion=1.0.0 \
+    -Dpackaging=pom
+
+# Compilar common-lib
 COPY Backend/common-lib/pom.xml ./Backend/common-lib/pom.xml
 COPY Backend/common-lib/src ./Backend/common-lib/src
 RUN mvn clean install -f Backend/common-lib/pom.xml -DskipTests
 
-# 3. Construir email-service
+# Compilar email-service
 COPY Backend/email-service/pom.xml ./Backend/email-service/pom.xml
 RUN mvn dependency:go-offline -f Backend/email-service/pom.xml || true
 COPY Backend/email-service/src ./Backend/email-service/src
-RUN mvn clean package -DskipTests -f Backend/email-service/pom.xml
+RUN mvn clean package -f Backend/email-service/pom.xml -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
