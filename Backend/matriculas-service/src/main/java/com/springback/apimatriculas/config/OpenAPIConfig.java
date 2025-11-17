@@ -17,7 +17,7 @@ public class OpenAPIConfig {
     @Value("${server.port:8080}")
     private String serverPort;
 
-    @Value("${server.servlet.context-path:/api/v1}")
+    @Value("${server.servlet.context-path:}")
     private String contextPath;
 
     @Bean

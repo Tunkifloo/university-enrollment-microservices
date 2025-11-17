@@ -1,5 +1,7 @@
 server:
   port: ${MATRICULAS_SERVICE_PORT:8085}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:}
 
 spring:
   application:
