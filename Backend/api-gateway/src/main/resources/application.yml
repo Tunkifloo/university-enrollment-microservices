@@ -57,7 +57,7 @@ spring:
           predicates:
             - Path=/api/v1/matriculas/facultades/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=3
 
         # Carreras
         - id: matriculas-carreras
@@ -65,7 +65,7 @@ spring:
           predicates:
             - Path=/api/v1/matriculas/carreras/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=3
 
         # Ruta genérica para matrículas
         - id: matriculas-service
@@ -73,7 +73,7 @@ spring:
           predicates:
             - Path=/api/v1/matriculas/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=3
 
         # ==================== AUDIT SERVICE ====================
         - id: audit-service
@@ -120,4 +120,6 @@ logging:
   level:
     root: ${LOGGING_LEVEL_ROOT:INFO}
     com.university.gateway: ${LOGGING_LEVEL_APP:DEBUG}
-    org.springframework.cloud.gateway: ${LOGGING_LEVEL_WEB:INFO}
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.route: DEBUG
+    reactor.netty: DEBUG

@@ -31,7 +31,9 @@ public class SecurityConfig {
                                 "/actuator/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/facultades/**",
+                                "/carreras/**"
                         ).permitAll()
 
                         // Todos los demás endpoints requieren autenticación
