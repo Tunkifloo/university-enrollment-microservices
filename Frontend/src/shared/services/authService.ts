@@ -1,3 +1,5 @@
+import { jwtDecoder } from '../utils/jwtDecoder';
+
 export interface LoginRequest {
     email: string;
     password: string;
@@ -62,26 +64,19 @@ export const authService = {
 
     getToken(): string | null {
         const token = localStorage.getItem('auth_token');
-
-        // Validar que el token exista y no esté vacío
         if (!token || token === 'null' || token === 'undefined') {
             return null;
         }
-
         return token;
     },
 
     getUser(): AuthResponse | null {
         const token = this.getToken();
-
-        // Si no hay token válido, retornar null
         if (!token) {
             return null;
         }
 
         const userStr = localStorage.getItem('auth_user');
-
-        // Validar que el usuario exista y no esté vacío
         if (!userStr || userStr === 'null' || userStr === 'undefined') {
             return null;
         }
@@ -102,4 +97,16 @@ export const authService = {
     isAuthenticated(): boolean {
         return !!this.getToken() && !!this.getUser();
     },
+
+    isAdmin(): boolean {
+        const token = this.getToken();
+        if (!token) return false;
+        return jwtDecoder.isAdmin(token);
+    },
+
+    getUserRole(): string | null {
+        const token = this.getToken();
+        if (!token) return null;
+        return jwtDecoder.getRole(token);
+    }
 };
