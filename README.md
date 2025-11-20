@@ -400,41 +400,90 @@ cp .env.example .env
 **Contenido del archivo `.env`:**
 
 ```env
-# ==================== SPRING PROFILES ====================
-SPRING_PROFILES_ACTIVE=prod
+# ==================== VERSIONES ====================
+SPRING_BOOT_VERSION=3.5.6
+JAVA_VERSION=17
+NODE_VERSION=20
 
-# ==================== POSTGRES CONFIGURATION ====================
+# ==================== PUERTOS ====================
+# Infraestructura
+EUREKA_PORT=8761
+GATEWAY_PORT=8080
+
+# Microservicios
+AUTH_SERVICE_PORT=8082
+EMAIL_SERVICE_PORT=8083
+AUDIT_SERVICE_PORT=8084
+MATRICULAS_SERVICE_PORT=8085
+
+# Bases de Datos PostgreSQL (Puertos externos para evitar conflicto con PostgreSQL Desktop)
+POSTGRES_AUTH_PORT=5435
+POSTGRES_AUDIT_PORT=5433
+POSTGRES_MATRICULAS_PORT=5434
+
+# Mensajería
+RABBITMQ_PORT=5672
+RABBITMQ_MANAGEMENT_PORT=15672
+KAFKA_PORT=9092
+KAFKA_UI_PORT=9093
+ZOOKEEPER_PORT=2181
+
+# Frontend
+FRONTEND_PORT=5173
+
+# ==================== POSTGRESQL ====================
+# Credenciales comunes
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=admin123
 
-# Database Names
+# Bases de datos específicas
 AUTH_DB_NAME=auth_db
-MATRICULAS_DB_NAME=matriculas_db
 AUDIT_DB_NAME=audit_db
+MATRICULAS_DB_NAME=matriculas_db
+AUTH_DB_URL=jdbc:postgresql://postgres-auth:5432/auth_db
+AUDIT_DB_URL=jdbc:postgresql://postgres-audit:5432/audit_db
+MATRICULAS_DB_URL=jdbc:postgresql://postgres-matriculas:5432/matriculas_db
 
-# Database Ports (for external access)
-POSTGRES_AUTH_PORT=5432
-POSTGRES_MATRICULAS_PORT=5434
-POSTGRES_AUDIT_PORT=5433
+# Pool de conexiones
+DB_POOL_SIZE=10
+DB_MIN_IDLE=5
+DB_MAX_LIFETIME=1800000
+DB_CONNECTION_TIMEOUT=30000
 
-# ==================== JPA CONFIGURATION ====================
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_JPA_SHOW_SQL=false
+# ==================== RABBITMQ ====================
+RABBITMQ_HOST=rabbitmq
 
-# ==================== KAFKA CONFIGURATION ====================
-KAFKA_PORT=9092
-KAFKA_UI_PORT=8090
+RABBITMQ_DEFAULT_USER=admin
+RABBITMQ_DEFAULT_PASS=admin123
+RABBITMQ_DEFAULT_VHOST=/
+
+# Configuración de colas
+RABBITMQ_EMAIL_QUEUE=email.queue
+RABBITMQ_EMAIL_EXCHANGE=email.exchange
+RABBITMQ_EMAIL_ROUTING_KEY=email.routing.key
+
+# ==================== KAFKA ====================
+KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+
 KAFKA_BROKER_ID=1
 KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
-KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+
+# Listeners CRÍTICOS - Sin estos Kafka falla
+KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+# Replicación
 KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
 KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
 KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+
+# Configuración adicional
 KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
 KAFKA_LOG_RETENTION_HOURS=168
 
-# Kafka Topics
+# Topics
 KAFKA_AUDIT_TOPIC=audit.events
 KAFKA_USER_REGISTERED_TOPIC=user.registered
 KAFKA_FACULTY_CREATED_TOPIC=faculty.created
@@ -443,56 +492,93 @@ KAFKA_FACULTY_DELETED_TOPIC=faculty.deleted
 KAFKA_CAREER_CREATED_TOPIC=career.created
 KAFKA_CAREER_UPDATED_TOPIC=career.updated
 KAFKA_CAREER_DELETED_TOPIC=career.deleted
+
+# Consumer groups
 KAFKA_AUDIT_CONSUMER_GROUP=audit-service-group
 
-# ==================== RABBITMQ CONFIGURATION ====================
-RABBITMQ_PORT=5672
-RABBITMQ_MANAGEMENT_PORT=15672
-RABBITMQ_DEFAULT_USER=admin
-RABBITMQ_DEFAULT_PASS=admin123
-RABBITMQ_DEFAULT_VHOST=/
+# ==================== EUREKA SERVER ====================
+EUREKA_URL=http://eureka-server:8761/eureka/
 
-# RabbitMQ Queues and Exchanges
-RABBITMQ_EMAIL_QUEUE=email.queue
-RABBITMQ_EMAIL_EXCHANGE=email.exchange
-RABBITMQ_EMAIL_ROUTING_KEY=email.routing.key
+EUREKA_INSTANCE_HOSTNAME=eureka-server
+EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+EUREKA_CLIENT_FETCH_REGISTRY=false
+EUREKA_SERVER_WAIT_TIME_ON_SHUTDOWN=0
+EUREKA_SERVER_EVICTION_INTERVAL_TIMER=5000
 
-# ==================== JWT CONFIGURATION ====================
+
+# ==================== JWT ====================
 JWT_SECRET=dev-secret-key-change-in-production-min-256-bits-long-jhoneirokun777-university-system
 JWT_EXPIRATION=86400000
 JWT_REFRESH_EXPIRATION=604800000
 
-# ==================== SMTP CONFIGURATION ====================
+# Security
+BCRYPT_STRENGTH=10
+
+# ==================== EMAIL SERVICE ====================
 SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=your-email@gmail.com
-SPRING_MAIL_PASSWORD=your-app-password
+SPRING_MAIL_USERNAME=gptseek011@gmail.com
+SPRING_MAIL_PASSWORD=xxql qjqq qpdl buko
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
-SMTP_FROM=your-email@gmail.com
+SMTP_FROM=gptseek011@gmail.com
+APP_NOTIFICATION_ADMIN_EMAIL=gptseek011@gmail.com
+
+# Email Service Settings
 EMAIL_ENABLED=true
 EMAIL_SIMULATION_MODE=false
-APP_NOTIFICATION_ADMIN_EMAIL=admin@university.com
 
-# ==================== SERVICE PORTS ====================
-EUREKA_PORT=8761
-GATEWAY_PORT=8080
-AUTH_SERVICE_PORT=8082
-EMAIL_SERVICE_PORT=8083
-AUDIT_SERVICE_PORT=8084
-MATRICULAS_SERVICE_PORT=8085
+# ==================== SPRING BOOT COMMON ====================
+SPRING_PROFILES_ACTIVE=docker
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_SHOW_SQL=false
+SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=true
+SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
 
-# ==================== FRONTEND CONFIGURATION ====================
-VITE_API_BASE_URL=http://localhost:8080/api/v1
-VITE_DEV_PORT=5173
+# ==================== ACTUATOR ====================
+MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics,prometheus
+MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
 
-# ==================== LOGGING LEVELS ====================
+# ==================== LOGGING ====================
 LOGGING_LEVEL_ROOT=INFO
 LOGGING_LEVEL_APP=DEBUG
 LOGGING_LEVEL_WEB=INFO
 LOGGING_LEVEL_SQL=DEBUG
 LOGGING_LEVEL_KAFKA=INFO
 LOGGING_LEVEL_RABBITMQ=INFO
+
+# ==================== FRONTEND ====================
+VITE_API_BASE_URL=http://localhost:8080/api/v1
+VITE_DEV_PORT=5173
+VITE_APP_MODE=development
+VITE_APP_NAME=Sistema de Matrículas Universitarias
+VITE_APP_VERSION=1.0.0
+VITE_ENABLE_LOGS=true
+
+# ==================== DOCKER ====================
+COMPOSE_PROJECT_NAME=university-system
+DOCKER_BUILDKIT=1
+COMPOSE_DOCKER_CLI_BUILD=1
+
+# Healthcheck
+HEALTHCHECK_INTERVAL=30s
+HEALTHCHECK_TIMEOUT=10s
+HEALTHCHECK_RETRIES=3
+HEALTHCHECK_START_PERIOD=40s
+
+# Restart policy
+RESTART_POLICY=unless-stopped
+
+# ==================== CORS ====================
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:80,http://localhost
+CORS_ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS,PATCH
+CORS_ALLOWED_HEADERS=Authorization,Content-Type,Accept,Origin,X-Requested-With
+
+# ==================== NOMBRES DE SERVICIOS ====================
+AUTH_SERVICE_NAME=auth-service
+AUDIT_SERVICE_NAME=audit-service
+MATRICULAS_SERVICE_NAME=matriculas-service
+
 ```
 
 #### 3. Construir y Levantar los Servicios
